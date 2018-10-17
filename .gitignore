@@ -45,6 +45,7 @@ Arduino/Debug
 
 # Other
 Arduino/__vm/
+Arduino/src/__vm/
 Arduino/LED_STRIP.sln
 Arduino/LED_STRIP.vcxproj
 Arduino/LED_STRIP.vcxproj.filters
