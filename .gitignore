@@ -30,3 +30,21 @@
 *.exe
 *.out
 *.app
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+#Output
+Arduino/Release
+Arduino/Debug
+
+
+# Other
+Arduino/__vm/
+Arduino/LED_STRIP.sln
+Arduino/LED_STRIP.vcxproj
+Arduino/LED_STRIP.vcxproj.filters
