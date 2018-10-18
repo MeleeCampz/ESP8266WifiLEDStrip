@@ -1,6 +1,4 @@
 #include "NetworkManager.h"
-#include <functional>
-
 
 NetworkManager::NetworkManager()
 	: _webServer(80), _curState(WAITING_FOR_CREDENTIALS)
@@ -75,7 +73,7 @@ void NetworkManager::BeginWebConfig()
 	IPAddress myIP = WiFi.softAPIP();
 	Serial.print("AP IP address: ");
 	Serial.println(myIP);
-
+	
 	_webServer.on("/", HTTP_GET, std::bind(&NetworkManager::handleRoot, this));
 	_webServer.on("/login", HTTP_POST, std::bind(&NetworkManager::handleLogin, this));
 	_webServer.onNotFound(std::bind(&NetworkManager::handleNotFound, this));
@@ -214,7 +212,6 @@ void NetworkManager::TryConnectToNetwork(const String ssid, const String pw)
 		Serial.print("IP-Adress: ");
 		IPAddress adr = WiFi.localIP();
 		Serial.println(adr);
-		_broadcastAdress = IPAddress(adr[0], adr[1], adr[2], 255);
 	}
 	else
 	{
@@ -226,15 +223,22 @@ void NetworkManager::TryConnectToNetwork(const String ssid, const String pw)
 
 void NetworkManager::SendUDPBroadcast()
 {
-	_udp.beginPacket(_broadcastAdress, BROADCAST_PORT);
+	IPAddress localIP = WiFi.localIP();
+	//IPAddress multiCastAddress = IPAddress(localIP[0], localIP[1], localIP[2], 255);
+	IPAddress multiCastAddress = IPAddress(255, 255, 255, 255);
+	IPAddress gateWayAddress = IPAddress(localIP[0], localIP[1], localIP[2], 1);
+
+	_udp.beginPacketMulticast(multiCastAddress, BROADCAST_PORT, WiFi.localIP());
 	_udp.write(_udpSendBuffer, sizeof(_udpSendBuffer));
 	_udp.endPacket();
+	_udp.flush();
+
 	Serial.println("Broadcast packet sent!");
 }
 
 void NetworkManager::InitSendBuffer()
 {
-	String message = "ESP8266_" + WiFi.macAddress();
+	String message = "ESP8266_BROADCAST";
 	strcpy(_udpSendBuffer, message.c_str());
 }
 
@@ -244,11 +248,15 @@ void NetworkManager::CheckUDPResponse()
 	while (_udp.parsePacket())
 	{
 		String response = _udp.readString();
-		if (response.equals(_udpSendBuffer))
+		if (response.equals("Hi I am host"))
 		{
 			_curState = NetworkManager::CONNECTED_TO_HOST;
 			_remoteIP = _udp.remoteIP();
 			Serial.println("Received broadcast package!");
 		} 
+		else
+		{
+			Serial.println(response);
+		}
 	}
 }
