@@ -19,11 +19,23 @@ void Application::Setup()
 	pinMode(PIN_G, OUTPUT);
 	pinMode(PIN_B, OUTPUT);
 
+	analogWrite(PIN_R, 100);
+	analogWrite(PIN_G, 100);
+	analogWrite(PIN_B, 100);
+
 	_networkManager.Begin();
+
+	//Bind callback
+	_networkManager.SetColorRequestCallback(std::bind(&Application::OnColorChangeRequested, this, std::placeholders::_1));
 }
 
 void Application::Loop()
 {
+	_networkManager.Update();
+	delay(100);
+	
+	return;
+
 	long now = millis();
 	float lerp = (now - _lastTime) / (float)TIME_TO_RISE;
 
@@ -65,4 +77,16 @@ void Application::Loop()
 	_networkManager.Update();
 
 	delay(10);
+}
+
+void Application::OnColorChangeRequested(Color color)
+{
+	ChangeColor(color);
+}
+
+void Application::ChangeColor(Color color)
+{
+	analogWrite(PIN_R, color.r);
+	analogWrite(PIN_G, color.g);
+	analogWrite(PIN_B, color.b);
 }

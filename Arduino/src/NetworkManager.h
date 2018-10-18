@@ -1,4 +1,6 @@
 #pragma once
+#include "Common.h"
+
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPClient.h>
@@ -7,6 +9,18 @@
 
 class NetworkManager
 {
+public:
+	NetworkManager();
+	~NetworkManager();
+
+	void Begin();
+	void Update();
+
+	void SetColorRequestCallback(std::function<void(Color)> callback);
+
+	//
+	bool SendData(byte* data, uint length);
+
 private:
 	enum NetworkState
 	{
@@ -26,11 +40,6 @@ private:
 	const String BROADCAST_MESSAGE = "ESP8266_BROADCAST";
 	const String HOST_REQUEST = "HOST_REQUEST";
 
-	//TCP pata stuff
-	static const uint16_t DATA_PORT = 6676;
-	static const int MAX_BYTES_PER_PACKAGE = 256;
-	char _DataSendBuffer[MAX_BYTES_PER_PACKAGE];
-
 	bool _ledToggle = false;
 	
 	uint16_t _updateTimer = 0;
@@ -41,9 +50,6 @@ private:
 
 	//UDP
 	WiFiUDP _udp;
-
-	//TCP
-	WiFiClient client;
 
 	//Server
 	ESP8266WebServer _webServer;
@@ -58,14 +64,7 @@ private:
 	void handleRoot();
 	void handleLogin();
 	void handleNotFound();
-public:	
-	NetworkManager();
-	~NetworkManager();
 
-	void Begin();
-	void Update();
-
-	//
-	bool SendData(byte* data, uint length);
+	std::function<void(Color)> _colorRequestCallback;
 };
 

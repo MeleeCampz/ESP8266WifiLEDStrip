@@ -19,7 +19,7 @@ namespace LEDController
 		private const int UDP_SOCKET = 6678;
 		private const string BROADCAST_MESSAGE_ESP8266 = "ESP8266_BROADCAST";
 		private const string BROADCAST_MESSAGE_REPLY = "HOST_REQUEST";
-
+		private Button Btn_Red;
 		private UdpClient _udpClient;
 
 		public MainWindow()
@@ -29,12 +29,6 @@ namespace LEDController
 			_udpClient = new UdpClient(6678);
 
 			ReadUDPData();
-		}
-
-
-		private void Main_Load(object sender, EventArgs e)
-		{
-
 		}
 
 		private async void ReadUDPData()
@@ -53,13 +47,39 @@ namespace LEDController
 					_udpClient.Connect(result.RemoteEndPoint.Address, result.RemoteEndPoint.Port);
 
 
-					ByteConverter converter = new ByteConverter();
 					byte[] sendBuffer = Encoding.Default.GetBytes(BROADCAST_MESSAGE_REPLY);
 
 					int ret = await _udpClient.SendAsync(sendBuffer, sendBuffer.Length);
 
 					Debug.WriteLine("Sent response with result: " + ret.ToString());
 				}
+			}
+		}
+
+		private void Btn_Red_Click(object sender, EventArgs e)
+		{
+			if(_udpClient.Client.Connected)
+			{
+				byte[] sendBuffer = Encoding.Default.GetBytes("255|000|000");
+				_udpClient.Send(sendBuffer, sendBuffer.Length);
+			}
+		}
+
+		private void Btn_Blue_Click(object sender, EventArgs e)
+		{
+			if (_udpClient.Client.Connected)
+			{
+				byte[] sendBuffer = Encoding.Default.GetBytes("000|255|000");
+				_udpClient.Send(sendBuffer, sendBuffer.Length);
+			}
+		}
+
+		private void Btn_Green_Click(object sender, EventArgs e)
+		{
+			if (_udpClient.Client.Connected)
+			{
+				byte[] sendBuffer = Encoding.Default.GetBytes("000|000|255");
+				_udpClient.Send(sendBuffer, sendBuffer.Length);
 			}
 		}
 	}

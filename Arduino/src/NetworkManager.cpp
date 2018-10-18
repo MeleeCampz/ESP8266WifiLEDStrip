@@ -1,7 +1,7 @@
 #include "NetworkManager.h"
 
 NetworkManager::NetworkManager()
-	: _webServer(80), _curState(WAITING_FOR_CREDENTIALS)
+	: _webServer(80), _curState(WAITING_FOR_CREDENTIALS), _colorRequestCallback(nullptr)
 {
 }
 
@@ -63,6 +63,11 @@ void NetworkManager::Update()
 	default:
 		break;
 	}
+}
+
+void NetworkManager::SetColorRequestCallback(std::function<void(Color)> callback)
+{
+	_colorRequestCallback = callback;
 }
 
 
@@ -256,7 +261,10 @@ void NetworkManager::CheckUDPResponse()
 		} 
 		else
 		{
-			Serial.println(response);
+			if (_colorRequestCallback != nullptr)
+			{
+				_colorRequestCallback(Color(response));
+			}
 		}
 	}
 }

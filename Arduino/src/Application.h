@@ -1,6 +1,8 @@
 #pragma once
+#include "Common.h"
+
 #include <Arduino.h>
-#include "NetworkManager.h"
+#include "NetworkManager.h" 
 
 class Application
 {
@@ -20,8 +22,12 @@ public:
 private:
 	const long TIME_TO_RISE = 2000;
 	long _lastTime = 0;
+	
 	int _curColor = 0;
 
 	NetworkManager _networkManager;
+
+	void OnColorChangeRequested(Color color);
+	void ChangeColor(Color color);
 };
 
