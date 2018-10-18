@@ -18,10 +18,13 @@ private:
 	NetworkState _curState;
 	
 	//Broadcast
-	static const int UDP_PACKET_SIZE = 48;
+	static const int UDP_PACKET_SIZE = 17;
 	char _udpSendBuffer[UDP_PACKET_SIZE];
 	static const uint16_t BROADCAST_PORT = 6678;
 	static const uint16_t BROADCAST_DELAY_MS = 5000;
+
+	const String BROADCAST_MESSAGE = "ESP8266_BROADCAST";
+	const String HOST_REQUEST = "HOST_REQUEST";
 
 	//TCP pata stuff
 	static const uint16_t DATA_PORT = 6676;

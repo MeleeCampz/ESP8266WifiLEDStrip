@@ -238,7 +238,7 @@ void NetworkManager::SendUDPBroadcast()
 
 void NetworkManager::InitSendBuffer()
 {
-	String message = "ESP8266_BROADCAST";
+	String message = BROADCAST_MESSAGE;
 	strcpy(_udpSendBuffer, message.c_str());
 }
 
@@ -248,11 +248,11 @@ void NetworkManager::CheckUDPResponse()
 	while (_udp.parsePacket())
 	{
 		String response = _udp.readString();
-		if (response.equals("Hi I am host"))
+		if (response.equals(HOST_REQUEST))
 		{
 			_curState = NetworkManager::CONNECTED_TO_HOST;
 			_remoteIP = _udp.remoteIP();
-			Serial.println("Received broadcast package!");
+			Serial.println("Received host package!");
 		} 
 		else
 		{

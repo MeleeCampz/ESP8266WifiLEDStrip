@@ -39,13 +39,21 @@
 *.sln.docstates
 
 #Output
-Arduino/Release
-Arduino/Debug
+Release/
+Debug/
+obj/
+.vs/
 
 
 # Other
 Arduino/__vm/
 Arduino/src/__vm/
-Arduino/LED_STRIP.sln
-Arduino/LED_STRIP.vcxproj
-Arduino/LED_STRIP.vcxproj.filters
+Arduino/ESP8266WifiLEDStrip.sln
+Arduino/ESP8266WifiLEDStrip.vcxproj
+Arduino/ESP8266WifiLEDStrip.vcxproj.filters
+
+#Visual studio
+vs15/
+
+Arduino/ESP8266WifiLEDStrip.vcxproj
+Arduino/ESP8266WifiLEDStrip.vcxproj.filters
