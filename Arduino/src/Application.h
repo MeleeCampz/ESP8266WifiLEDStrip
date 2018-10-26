@@ -20,10 +20,6 @@ public:
 	void Loop();
 
 private:
-	const long TIME_TO_RISE = 2000;
-	long _lastTime = 0;
-	
-	int _curColor = 0;
 
 	NetworkManager _networkManager;
 

@@ -45,21 +45,17 @@ void NetworkManager::Update()
 		if (_updateTimer >= BROADCAST_DELAY_MS)
 		{
 			SendUDPBroadcast();
-			CheckUDPResponse();
 			_updateTimer = 0;
 		}
+		CheckUDPResponse();
 		break;
 	case NetworkManager::CONNECTED_TO_HOST:
-		if (_updateTimer >= BROADCAST_DELAY_MS)
+		CheckUDPResponse();
+		if (!WiFi.isConnected())
 		{
-			CheckUDPResponse();
-			_updateTimer = 0;
-
-			if (!WiFi.isConnected())
-			{
-				TryConnectToNetwork("","");
-			}
+			TryConnectToNetwork("", "");
 		}
+		break;
 	default:
 		break;
 	}
@@ -78,7 +74,7 @@ void NetworkManager::BeginWebConfig()
 	IPAddress myIP = WiFi.softAPIP();
 	Serial.print("AP IP address: ");
 	Serial.println(myIP);
-	
+
 	_webServer.on("/", HTTP_GET, std::bind(&NetworkManager::handleRoot, this));
 	_webServer.on("/login", HTTP_POST, std::bind(&NetworkManager::handleLogin, this));
 	_webServer.onNotFound(std::bind(&NetworkManager::handleNotFound, this));
@@ -123,43 +119,43 @@ void NetworkManager::handleLogin()
 	String ssid = _webServer.arg("SSID");
 	String pass = _webServer.arg("password");
 
-/*
-	Serial.println("Propagating Login-Data to other ESPs");
-	int n = WiFi.scanNetworks();
-	for (int i = 0; i < n; ++i)
-	{
-		String SSID = WiFi.SSID(i);
-		if (SSID.startsWith("ESP8266"))
+	/*
+		Serial.println("Propagating Login-Data to other ESPs");
+		int n = WiFi.scanNetworks();
+		for (int i = 0; i < n; ++i)
 		{
-			Serial.print("Connecting to: ");
-			Serial.println(SSID);
-			WiFi.begin(SSID.c_str());
-			int retries = 0;
-			while ((WiFi.status() != WL_CONNECTED) && (retries < 15))
+			String SSID = WiFi.SSID(i);
+			if (SSID.startsWith("ESP8266"))
 			{
-				retries++;
-				delay(1000);
-				Serial.print(".");
-			}
-			Serial.println("");
-			if (WiFi.status() == WL_CONNECTED)
-			{
-				Serial.println("Success!");
-				HTTPClient http;
-				http.begin("http://192.168.4.1:80/login");
-				http.addHeader("Content-Type", "text/plain");
-				String postReq = "SSID=" + ssid + "&password=" + pass;
-				http.POST(postReq);
-				http.writeToStream(&Serial);
-				http.end();
-			}
-			else
-			{
-				Serial.println("Failed!");
+				Serial.print("Connecting to: ");
+				Serial.println(SSID);
+				WiFi.begin(SSID.c_str());
+				int retries = 0;
+				while ((WiFi.status() != WL_CONNECTED) && (retries < 15))
+				{
+					retries++;
+					delay(1000);
+					Serial.print(".");
+				}
+				Serial.println("");
+				if (WiFi.status() == WL_CONNECTED)
+				{
+					Serial.println("Success!");
+					HTTPClient http;
+					http.begin("http://192.168.4.1:80/login");
+					http.addHeader("Content-Type", "text/plain");
+					String postReq = "SSID=" + ssid + "&password=" + pass;
+					http.POST(postReq);
+					http.writeToStream(&Serial);
+					http.end();
+				}
+				else
+				{
+					Serial.println("Failed!");
+				}
 			}
 		}
-	}
-*/
+	*/
 
 	Serial.println(ssid);
 	TryConnectToNetwork(ssid, pass);
@@ -199,7 +195,7 @@ void NetworkManager::TryConnectToNetwork(const String ssid, const String pw)
 	{
 		Serial.print("Connecting to network: ");
 		Serial.println(ssid.c_str());
-		
+
 		WiFi.begin(ssid.c_str(), pw.c_str());
 	}
 
@@ -258,7 +254,7 @@ void NetworkManager::CheckUDPResponse()
 			_curState = NetworkManager::CONNECTED_TO_HOST;
 			_remoteIP = _udp.remoteIP();
 			Serial.println("Received host package!");
-		} 
+		}
 		else
 		{
 			if (_colorRequestCallback != nullptr)
