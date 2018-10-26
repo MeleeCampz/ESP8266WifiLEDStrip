@@ -3,30 +3,31 @@
 
 struct Color
 {
-	int r;
-	int g;
-	int b;
+	short r;
+	short g;
+	short b;
 
 	Color(int red, int green, int blue)
 		:r(red), g(green), b (blue)
 	{}
 
-	Color(String s)
+	Color(char* buffer, int* offset, int size)
 	{
-		if (s.length() != 11)
+		if (size - *offset != 3)
 		{
 			SetColors(0, 0, 0);
-			Serial.println("Invalid colors string!");
+			Serial.println("Invalid buffer length!");
 		}
-
-		String red = s.substring(0, 2);
-		String green = s.substring(4, 6);
-		String blue = s.substring(8, 10);
-
-		SetColors(atoi(red.c_str()), atoi(green.c_str()), atoi(blue.c_str()));
+		
+		SetColors
+		(
+			buffer[(*offset)++],
+			buffer[(*offset)++],
+			buffer[(*offset)++]
+		);
 	}
 
-	void SetColors(int red, int green, int blue)
+	void SetColors(short red, short green, short blue)
 	{
 		r = red;
 		g = green;

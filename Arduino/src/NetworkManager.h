@@ -22,6 +22,13 @@ public:
 	bool SendData(byte* data, uint length);
 
 private:
+	enum NetMessageType : char
+	{
+		NONE = 0,
+		BROADCAST = 1,
+		COLOR = 2
+	};
+	
 	enum NetworkState
 	{
 		WAITING_FOR_CREDENTIALS,
@@ -32,8 +39,9 @@ private:
 	NetworkState _curState;
 	
 	//Broadcast
-	static const int UDP_PACKET_SIZE = 17;
-	char _udpSendBuffer[UDP_PACKET_SIZE];
+	static const int UDP_MAX_PACKET_SIZE = 128;
+	char _udpSendBuffer[UDP_MAX_PACKET_SIZE];
+	char _udpReadBuffer[UDP_MAX_PACKET_SIZE];
 	static const uint16_t BROADCAST_PORT = 6678;
 	static const uint16_t BROADCAST_DELAY_MS = 5000;
 
@@ -54,8 +62,7 @@ private:
 	//Server
 	ESP8266WebServer _webServer;
 
-	void InitSendBuffer();
-	void CheckUDPResponse();
+	void CheckUDPMessage();
 	void SendUDPBroadcast();
 	//If ssid is not specified (empty string) mcu tries to connect to last network
 	void TryConnectToNetwork(const String ssid, const String pw);

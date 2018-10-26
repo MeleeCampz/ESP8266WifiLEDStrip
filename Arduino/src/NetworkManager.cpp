@@ -14,8 +14,6 @@ void NetworkManager::Begin()
 	//Setup udp
 	_udp.begin(BROADCAST_PORT);
 
-	InitSendBuffer();
-
 	//Try to reconnect
 	TryConnectToNetwork("", "");
 
@@ -47,10 +45,10 @@ void NetworkManager::Update()
 			SendUDPBroadcast();
 			_updateTimer = 0;
 		}
-		CheckUDPResponse();
+		CheckUDPMessage();
 		break;
 	case NetworkManager::CONNECTED_TO_HOST:
-		CheckUDPResponse();
+		CheckUDPMessage();
 		if (!WiFi.isConnected())
 		{
 			TryConnectToNetwork("", "");
@@ -230,37 +228,55 @@ void NetworkManager::SendUDPBroadcast()
 	IPAddress gateWayAddress = IPAddress(localIP[0], localIP[1], localIP[2], 1);
 
 	_udp.beginPacketMulticast(multiCastAddress, BROADCAST_PORT, WiFi.localIP());
-	_udp.write(_udpSendBuffer, sizeof(_udpSendBuffer));
+	
+	_udpSendBuffer[0] = NetMessageType::BROADCAST;
+
+	const char* message = BROADCAST_MESSAGE.c_str();
+	strcpy(&_udpSendBuffer[1], message);
+	
+	_udp.write(_udpSendBuffer, BROADCAST_MESSAGE.length() + 1);
 	_udp.endPacket();
 	_udp.flush();
 
 	Serial.println("Broadcast packet sent!");
 }
-
-void NetworkManager::InitSendBuffer()
-{
-	String message = BROADCAST_MESSAGE;
-	strcpy(_udpSendBuffer, message.c_str());
-}
-
-void NetworkManager::CheckUDPResponse()
+void NetworkManager::CheckUDPMessage()
 {
 	//Check if someone ping-ponged package back
-	while (_udp.parsePacket())
+	while (int size = _udp.parsePacket())
 	{
-		String response = _udp.readString();
-		if (response.equals(HOST_REQUEST))
+		_udp.readBytes(_udpReadBuffer, size);
+
+		int offset = 0;
+		NetMessageType type = (NetMessageType)_udpReadBuffer[offset++];
+
+		switch (type)
 		{
-			_curState = NetworkManager::CONNECTED_TO_HOST;
-			_remoteIP = _udp.remoteIP();
-			Serial.println("Received host package!");
-		}
-		else
+		case NetworkManager::NONE:
+			break;
+		case NetworkManager::BROADCAST:
 		{
-			if (_colorRequestCallback != nullptr)
+			//Cehck for correct message
+			String message(&_udpReadBuffer[offset]);
+
+			if (message == HOST_REQUEST)
 			{
-				_colorRequestCallback(Color(response));
+				_curState = NetworkManager::CONNECTED_TO_HOST;
+				_remoteIP = _udp.remoteIP();
+				Serial.println("Received host package!");
 			}
+			else
+			{
+				Serial.println(message);
+			}
+			break;
+		}
+		case NetworkManager::COLOR:
+			_colorRequestCallback(Color(_udpReadBuffer, &offset, size));
+			break;
+		default:
+			//Serial.println()
+			break;
 		}
 	}
 }
