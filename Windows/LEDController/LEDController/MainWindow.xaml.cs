@@ -1,25 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
 using System.Diagnostics;
-
 using System.Net.Sockets;
 
 namespace LEDController
 {
-	public partial class MainWindow : Form
+	/// <summary>
+	/// Interaction logic for MainWindow.xaml
+	/// </summary>
+	public partial class MainWindow : Window
 	{
 		private const int UDP_SOCKET = 6678;
 		private const string BROADCAST_MESSAGE_ESP8266 = "ESP8266_BROADCAST";
 		private const string BROADCAST_MESSAGE_REPLY = "HOST_REQUEST";
-		private Button Btn_Red;
+
 		private UdpClient _udpClient;
 
 		private const int SEND_BUFFER_SIZE = 128;
@@ -30,7 +37,6 @@ namespace LEDController
 			InitializeComponent();
 
 			_udpClient = new UdpClient(6678);
-
 			_udpClient.Client.SendBufferSize = 64;
 
 			ReadUDPData();
@@ -79,22 +85,24 @@ namespace LEDController
 					case Globals.NetMessageType.COLOR_CHANGE:
 						break;
 				}
+
+
 			}
 		}
 
-		private void Btn_Red_Click(object sender, EventArgs e)
+		private void Btn_red_Click(object sender, RoutedEventArgs e)
 		{
-			SendColorChangePackage(Color.Red);
+			SendColorChangePackage(Color.FromRgb(255,0,0));
 		}
 
-		private void Btn_Blue_Click(object sender, EventArgs e)
+		private void Btn_grren_Click(object sender, RoutedEventArgs e)
 		{
-			SendColorChangePackage(Color.Blue);
+			SendColorChangePackage(Color.FromRgb(0, 255, 0));
 		}
 
-		private void Btn_Green_Click(object sender, EventArgs e)
+		private void Btn_blue_Click(object sender, RoutedEventArgs e)
 		{
-			SendColorChangePackage(Color.Green);
+			SendColorChangePackage(Color.FromRgb(0, 0, 255));
 		}
 
 		private async void SendColorChangePackage(Color c)
