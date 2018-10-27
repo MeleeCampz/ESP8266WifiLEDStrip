@@ -41,7 +41,7 @@ void Application::OnColorChangeRequested(Color color)
 
 void Application::ChangeColor(Color color)
 {
-	analogWrite(PIN_R, color.r);
-	analogWrite(PIN_G, color.g);
-	analogWrite(PIN_B, color.b);
+	analogWrite(PIN_R, color.r * TO_PWM);
+	analogWrite(PIN_G, color.g * TO_PWM);
+	analogWrite(PIN_B, color.b * TO_PWM);
 }

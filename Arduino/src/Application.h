@@ -14,6 +14,8 @@ public:
 	const int PIN_G = D7;
 	const int PIN_B = D6;
 
+	const float TO_PWM = PWMRANGE / 256;
+
 	const int BAUD_RATE = 921600;
 
 	void Setup();
